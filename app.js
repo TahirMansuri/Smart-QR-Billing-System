@@ -452,11 +452,6 @@ window.QRCodeReady.then(() => {
                                 <span>-${formatCurrency(totalDiscount)}</span>
                             </div>
                             <hr style="border-top:1px dashed #ccc; margin:10px 0;">
-                            <h3 style="text-align:center; font-size:1.1rem; color:#0f3b5e; margin-bottom: 5px;">Thank You for Shopping!</h3>
-                            <div style="text-align:center; font-size:0.75rem; color:#4b6a85; margin-top: 10px;">
-                                Developed by - Tahir Husen Najir Mansuri<br>
-                                <span style="opacity:0.8">(Lead System Engineer / HOD, IMRD Shahada)</span>
-                            </div>
                         </div>
                     `;
 
