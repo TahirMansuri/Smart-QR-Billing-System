@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MiniStore · Admin + Staff</title>
+    <!-- QRCode.js for generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+    </script>
+    <!-- Guarantee that the QRCode constructor is available before any script runs -->
+    <script>
+        // If the script hasn't finished loading yet, create a tiny promise.
+        window.QRCodeReady = new Promise(resolve => {
+            if (window.QRCode) {
+                resolve();
+            } else {
+                const check = setInterval(() => {
+                    if (window.QRCode) {
+                        clearInterval(check);
+                        resolve();
+                    }
+                }, 50);
+            }
+        });
+    </script>
+    <!-- HTML5 QR Code for scanning -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+* {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #f4f7fc;
+            padding: 16px 12px 40px;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #0f3b5e;
+            margin-bottom: 16px;
+            border-bottom: 3px solid #2a7faa;
+            padding-bottom: 8px;
+        }
+
+        h1 i {
+            color: #2a7faa;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 8px;
+            border: none;
+            background: #dfe8f0;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1e3a5f;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab-btn.active {
+            background: #1a5e7a;
+            color: white;
+            box-shadow: 0 4px 8px rgba(26, 94, 122, 0.3);
+        }
+
+        .tab-btn i {
+            font-size: 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 20px rgba(0, 20, 40, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #0f3b5e;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            color: #334e68;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #dce5ed;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            background: #fafcff;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2a7faa;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(42, 127, 170, 0.15);
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn {
+            background: #1a5e7a;
+            border: none;
+            color: white;
+            padding: 14px 18px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 6px;
+            box-shadow: 0 4px 8px rgba(26, 94, 122, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: #e2eaf2;
+            color: #1a3e5a;
+            box-shadow: none;
+        }
+
+        .btn-success {
+            background: #1f8b4c;
+            box-shadow: 0 4px 8px rgba(31, 139, 76, 0.25);
+        }
+
+        .btn-danger {
+            background: #c0392b;
+            box-shadow: 0 4px 8px rgba(192, 57, 43, 0.25);
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.25);
+        }
+
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+        }
+
+        #qrcode {
+            background: white;
+            padding: 12px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: inline-block;
+        }
+
+        .qr-hint {
+            font-size: 0.85rem;
+            color: #4b6a85;
+            margin-top: 8px;
+        }
+
+        .product-item {
+            background: #f8faff;
+            border-radius: 40px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e3edf5;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-name {
+            font-weight: 600;
+        }
+
+        .product-meta {
+            font-size: 0.75rem;
+            color: #3c5f7a;
+        }
+
+        .badge {
+            background: #1a5e7a;
+            color: white;
+            border-radius: 40px;
+            padding: 4px 14px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .scanner-area {
+            text-align: center;
+        }
+
+        #scan-input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 60px;
+            border: 2px dashed #2a7faa;
+            background: #f1f9ff;
+            text-align: center;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        #scan-result {
+            margin: 16px 0 8px;
+            padding: 12px;
+            background: #e7f3fa;
+            border-radius: 40px;
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee9f2;
+        }
+
+        .bill-total {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0f3b5e;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qty-control button {
+            background: #dce5ed;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #1a3e5a;
+            cursor: pointer;
+        }
+
+        .qty-control button:active {
+            background: #b0c4d8;
+        }
+
+        .qty-control span {
+            font-weight: 600;
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .mt-2 {
+            margin-top: 12px;
+        }
+
+        .mb-1 {
+            margin-bottom: 6px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .flex {
+            display: flex;
+            align-items: center;
+        }
+
+        .image-preview {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 1px solid #dce5ed;
+            margin-top: 6px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #c0392b;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 4px 8px;
+        }
+
+        #scanner-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 10px auto;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+        }
+
+        #scanner-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .scanner-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .scanner-controls .btn {
+            flex: 1;
+        }
+
+        @media print {
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .card {
+                box-shadow: none;
+                border: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                max-width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .bill-row {
+                border-bottom: 1px dashed #ccc;
+            }
+            
+            .card-title {
+                text-align: center;
+                font-size: 1.5rem;
+                margin-bottom: 20px !important;
+            }
+        }
+</style>
+</head>
+
+<body>
+    <div class="container" id="app">
+        <h1><i class="fas fa-store"></i> MiniStore</h1>
+
+        <!-- Tab navigation -->
+        <div class="tabs no-print">
+            <button class="tab-btn active" data-tab="admin"><i class="fas fa-user-cog"></i> Admin</button>
+            <button class="tab-btn" data-tab="staff"><i class="fas fa-qrcode"></i> Staff</button>
+        </div>
+
+        <!-- ========== ADMIN PANEL ========== -->
+        <div id="tab-admin" class="tab-content">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-plus-circle"></i> Add Product</div>
+                <form id="productForm">
+                    <div class="form-group">
+                        <label>Product name *</label>
+                        <input type="text" id="pName" placeholder="e.g. Organic Honey" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Company / Brand</label>
+                        <input type="text" id="pCompany" placeholder="e.g. Nature's Best">
+                    </div>
+                    <div class="row-2">
+                        <div class="form-group">
+                            <label>Price (₹)</label>
+                            <input type="number" id="pPrice" placeholder="199" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Discount (%)</label>
+                            <input type="number" id="pDiscount" placeholder="10" step="0.1" min="0" max="100">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Net Price (₹) <span
+                                style="font-weight:400; color:#4b6a85;">(auto-calculated)</span></label>
+                        <input type="text" id="pNet" placeholder="Calculated automatically" readonly
+                            style="background:#ecf3f9; font-weight:600;">
+                    </div>
+                    <div class="row-2">
+                        <div class="form-group">
+                            <label>Mfg Date</label>
+                            <input type="date" id="pMfg">
+                        </div>
+                        <div class="form-group">
+                            <label>Expiry Date</label>
+                            <input type="date" id="pExp">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Product Image</label>
+                        <input type="file" id="pImage" accept="image/*" capture="environment">
+                        <div id="imagePreview"></div>
+                    </div>
+                    <button type="submit" class="btn" id="saveProductBtn"><i class="fas fa-save"></i> Save & Generate
+                        QR</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fas fa-qrcode"></i> QR Code Preview</div>
+                <div class="qr-container" id="qrPreviewArea">
+                    <div id="qrcode"></div>
+                    <div class="qr-hint" id="qrProductName">Save a product to generate QR</div>
+                </div>
+                <button class="btn btn-secondary no-print" id="printQRBtn"><i class="fas fa-print"></i> Print QR
+                    label</button>
+            </div>
+
+            <div class="card">
+                <div class="flex-between">
+                    <span class="card-title" style="margin:0"><i class="fas fa-boxes"></i> Products</span>
+                    <button class="btn btn-secondary" style="width:auto; padding:8px 18px;" id="refreshList"><i
+                            class="fas fa-sync-alt"></i></button>
+                </div>
+                <div id="productList"></div>
+            </div>
+        </div>
+
+        <!-- ========== STAFF PANEL ========== -->
+        <div id="tab-staff" class="tab-content hidden">
+            <div class="card no-print">
+                <div class="card-title"><i class="fas fa-qrcode"></i> Scan QR Code</div>
+                <div class="scanner-area">
+                    <div id="scanner-container"></div>
+                    <div class="scanner-controls">
+                        <button class="btn btn-success" id="startScannerBtn"><i class="fas fa-camera"></i> Start
+                            Camera</button>
+                        <button class="btn btn-danger" id="stopScannerBtn"><i class="fas fa-stop"></i> Stop</button>
+                    </div>
+                    <div style="margin-top: 12px;">
+                        <label style="font-size:0.85rem;">Or enter manually:</label>
+                        <input type="text" id="scan-input" placeholder="Paste product ID (e.g. PROD_123)">
+                        <button class="btn btn-secondary" id="scanLookupBtn" style="margin-top:6px;"><i
+                                class="fas fa-search"></i> Lookup</button>
+                    </div>
+                    <div id="scan-result" class="hidden">
+                        <div id="scannedProductInfo"></div>
+                        <div class="qty-control flex" style="justify-content:center; margin-top:10px;">
+                            <button id="qtyDec">−</button>
+                            <span id="qtyDisplay">1</span>
+                            <button id="qtyInc">+</button>
+                        </div>
+                        <button class="btn btn-success" id="addToBillBtn"><i class="fas fa-cart-plus"></i> Add to
+                            bill</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="flex-between">
+                    <span class="card-title" style="margin:0"><i class="fas fa-receipt"></i> Current Bill</span>
+                    <button class="btn btn-secondary no-print" style="width:auto; padding:8px 16px;" id="clearBillBtn"><i
+                            class="fas fa-trash-alt"></i> Clear</button>
+                </div>
+                <div id="billItems"></div>
+                <div class="bill-total text-center" id="billTotal">Total: ₹0.00</div>
+                
+                <div class="print-only" style="display:none; margin-top:20px;">
+                    <h3 style="text-align:center; font-size:1.1rem; color:#0f3b5e; margin-bottom: 5px;">Thank You for Shopping!</h3>
+                    <div style="text-align:center; font-size:0.75rem; color:#4b6a85; margin-top: 10px;">
+                        Developed by - Tahir Husen Najir Mansuri<br>
+                        <span style="opacity:0.8">(Lead System Engineer / HOD, IMRD Shahada)</span>
+                    </div>
+                </div>
+
+                <button class="btn no-print" id="printBillBtn"><i class="fas fa-print"></i> Print Bill</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Developer Trademark / Identity -->
+    <div style="text-align: center; margin: 30px auto 10px; max-width: 500px; padding: 0 12px; font-size: 0.9rem; color: #4b6a85;" class="no-print">
+        <hr style="border: 0; border-top: 1px solid #dce5ed; margin-bottom: 15px;">
+        <p style="font-weight: 700; color: #0f3b5e; font-size: 1rem;"><i class="fas fa-shield-alt" style="color: #2a7faa;"></i> Developed by - Tahir Husen Najir Mansuri</p>
+        <p style="margin-top: 4px; font-weight: 500;">(Lead System Engineer / HOD, IMRD Shahada)</p>
+        <p style="font-size: 0.75rem; margin-top: 8px; opacity: 0.8;">&copy; 2026 All Rights Reserved.</p>
+    </div>
+
+
+    <script>
+window.QRCodeReady.then(() => {
+            (function () {
+                // ---------- localStorage DB ----------
+                const STORAGE_KEY = 'miniproducts';
+                let products = [];
+                let currentProductId = null;
+                let billItems = [];
+                let html5QrCode = null;
+                let isScanning = false;
+
+                // Load products from localStorage
+                function loadProducts() {
+                    try {
+                        const data = localStorage.getItem(STORAGE_KEY);
+                        if (data) {
+                            products = JSON.parse(data);
+                        } else {
+                            products = [];
+                        }
+                    } catch (e) {
+                        products = [];
+                    }
+                    return products;
+                }
+
+                // Save products to localStorage
+                function saveProducts() {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+                }
+
+                // Get next ID
+                function getNextId() {
+                    if (products.length === 0) return 1;
+                    const maxId = Math.max(...products.map(p => p.id || 0));
+                    return maxId + 1;
+                }
+
+                // ---------- helpers ----------
+                function formatCurrency(val) {
+                    return '₹' + Number(val).toFixed(2);
+                }
+
+                function getNet(price, discount) {
+                    price = parseFloat(price) || 0;
+                    discount = parseFloat(discount) || 0;
+                    let net = price - (price * discount / 100);
+                    return Math.round(net * 100) / 100;
+                }
+
+                // ---------- render product list ----------
+                function renderProductList() {
+                    const container = document.getElementById('productList');
+                    const products = loadProducts();
+
+                    if (products.length === 0) {
+                        container.innerHTML = '<p style="color:#6b8aa5; padding:12px;">No products yet. Add one!</p>';
+                        return;
+                    }
+
+                    let html = '';
+                    const sorted = [...products].reverse();
+                    sorted.forEach(p => {
+                        html += `
+                            <div class="product-item">
+                                <div class="product-info">
+                                    <span class="product-name">${p.name || 'Unnamed'}</span>
+                                    <span class="product-meta">${p.company || ''} · ${formatCurrency(p.net)}</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span class="badge">ID:${p.id}</span>
+                                    <button class="delete-btn" data-id="${p.id}" title="Delete product"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+
+                    container.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.addEventListener('click', function () {
+                            const id = parseInt(this.dataset.id);
+                            if (confirm('Delete this product?')) {
+                                deleteProduct(id);
+                            }
+                        });
+                    });
+                }
+
+                // Delete product
+                function deleteProduct(id) {
+                    products = products.filter(p => p.id !== id);
+                    saveProducts();
+                    renderProductList();
+                    if (currentProductId === id) {
+                        document.getElementById('qrcode').innerHTML = '<span style="color:#8aa3bb; font-size:0.9rem;">Product deleted</span>';
+                        document.getElementById('qrProductName').innerText = 'No product';
+                        currentProductId = null;
+                    }
+                }
+
+                // ---------- QR generation (mobile-friendly) ----------
+                function generateQR(productId) {
+                    const qrContainer = document.getElementById('qrcode');
+                    qrContainer.innerHTML = '';
+
+                    if (!productId) {
+                        document.getElementById('qrProductName').innerText = 'No product selected';
+                        return;
+                    }
+
+                    const products = loadProducts();
+                    const product = products.find(p => p.id === productId);
+
+                    if (!product) {
+                        document.getElementById('qrProductName').innerText = 'Product not found';
+                        return;
+                    }
+
+                    document.getElementById('qrProductName').innerText = product.name || 'Product';
+                    const payload = 'PROD_' + productId;
+
+                    // The QRCode library may still be loading on slow devices.
+                    // We wait for the library to be available (window.QRCode) and retry once.
+                    const tryGenerate = () => {
+                        if (window.QRCode) {
+                            new QRCode(qrContainer, {
+                                text: payload,
+                                width: 160,
+                                height: 160,
+                                colorDark: '#0f3b5e',
+                                colorLight: '#ffffff',
+                                correctLevel: QRCode.CorrectLevel.H
+                            });
+                            currentProductId = productId;
+                        } else {
+                            // Retry after a short delay (max 1 second)
+                            setTimeout(tryGenerate, 200);
+                        }
+                    };
+                    tryGenerate();
+                }
+
+                // ---------- handle product form ----------
+                document.getElementById('productForm').addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const name = document.getElementById('pName').value.trim();
+                    if (!name) {
+                        alert('Product name is required');
+                        return;
+                    }
+
+                    const company = document.getElementById('pCompany').value.trim();
+                    const price = parseFloat(document.getElementById('pPrice').value) || 0;
+                    const discount = parseFloat(document.getElementById('pDiscount').value) || 0;
+                    const net = getNet(price, discount);
+                    const mfg = document.getElementById('pMfg').value;
+                    const exp = document.getElementById('pExp').value;
+
+                    const fileInput = document.getElementById('pImage');
+                    let imageData = '';
+
+                    if (fileInput.files && fileInput.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function (ev) {
+                            imageData = ev.target.result;
+                            saveProductToDB(name, company, price, discount, net, mfg, exp, imageData);
+                        };
+                        reader.readAsDataURL(fileInput.files[0]);
+                    } else {
+                        saveProductToDB(name, company, price, discount, net, mfg, exp, '');
+                    }
+                });
+
+                function saveProductToDB(name, company, price, discount, net, mfg, exp, imageData) {
+                    const products = loadProducts();
+                    const newProduct = {
+                        id: getNextId(),
+                        name: name,
+                        company: company || '',
+                        price: price,
+                        discount: discount,
+                        net: net,
+                        mfg: mfg || '',
+                        exp: exp || '',
+                        image: imageData || '',
+                        createdAt: Date.now()
+                    };
+
+                    // Store the product first (without the image) to test quota.
+                    const productCopy = { ...newProduct };
+                    delete productCopy.image;   // Remove image temporarily
+                    products.push(productCopy);
+                    try {
+                        saveProducts();   // May throw if quota exceeded
+                    } catch (e) {
+                        // If quota error, fall back to saving without the image.
+                        console.warn('Image too large for localStorage – saving without it.');
+                        // Save again without image data
+                        productCopy.image = '';
+                        products[products.length - 1] = productCopy;
+                        saveProducts();
+                    }
+
+                    document.getElementById('pName').value = '';
+                    document.getElementById('pCompany').value = '';
+                    document.getElementById('pPrice').value = '';
+                    document.getElementById('pDiscount').value = '';
+                    document.getElementById('pMfg').value = '';
+                    document.getElementById('pExp').value = '';
+                    document.getElementById('pImage').value = '';
+                    document.getElementById('imagePreview').innerHTML = '';
+                    document.getElementById('pNet').value = '';
+
+                    generateQR(newProduct.id);
+                    renderProductList();
+
+                    alert('✅ Product saved successfully! QR code generated.');
+                }
+
+                // Net price calculation
+                function updateNetPrice() {
+                    const price = parseFloat(document.getElementById('pPrice').value) || 0;
+                    const discount = parseFloat(document.getElementById('pDiscount').value) || 0;
+                    const net = getNet(price, discount);
+                    document.getElementById('pNet').value = formatCurrency(net);
+                }
+
+                const priceEl = document.getElementById('pPrice');
+                const discountEl = document.getElementById('pDiscount');
+                // Mobile browsers sometimes fire only 'change' for numeric inputs.
+                ['input', 'change', 'blur'].forEach(ev => {
+                    priceEl.addEventListener(ev, updateNetPrice);
+                    discountEl.addEventListener(ev, updateNetPrice);
+                });
+
+                // Image preview
+                document.getElementById('pImage').addEventListener('change', function (e) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.innerHTML = '';
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = ev => {
+                            const img = document.createElement('img');
+                            img.src = ev.target.result;
+                            img.className = 'image-preview';
+                            preview.appendChild(img);
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+
+                // ---------- QR Code Scanner ----------
+                function initializeScanner() {
+                    const container = document.getElementById('scanner-container');
+                    // If the page is not loaded via HTTPS or localhost, the camera API will be blocked.
+                    const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
+                    if (!isSecure) {
+                        container.innerHTML = '<div style="color:white; padding:20px; text-align:center;">⚠️ Camera access requires HTTPS or localhost. Open the page via a secure URL.</div>';
+                        html5QrCode = null;
+                        return;
+                    }
+                    container.innerHTML = '<div style="color:white; padding:20px; text-align:center;">Camera ready. Click "Start Camera" to scan.</div>';
+                    html5QrCode = new Html5Qrcode("scanner-container");
+                }
+
+                function startScanner() {
+                    if (isScanning) {
+                        alert('Scanner is already running');
+                        return;
+                    }
+
+                    const config = {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0
+                    };
+
+                    html5QrCode.start({ facingMode: "environment" },
+                        config,
+                        onScanSuccess,
+                        onScanError
+                    ).then(() => {
+                        isScanning = true;
+                        document.getElementById('startScannerBtn').textContent = 'Scanning...';
+                        document.getElementById('startScannerBtn').disabled = true;
+                    }).catch(err => {
+                        alert('Could not start camera. Please ensure camera permissions are granted.\nError: ' + err);
+                        console.error(err);
+                    });
+                }
+
+                function stopScanner() {
+                    if (html5QrCode && isScanning) {
+                        html5QrCode.stop().then(() => {
+                            isScanning = false;
+                            document.getElementById('startScannerBtn').textContent = 'Start Camera';
+                            document.getElementById('startScannerBtn').disabled = false;
+                        }).catch(err => {
+                            console.error('Error stopping scanner:', err);
+                        });
+                    }
+                }
+
+                function onScanSuccess(decodedText, decodedResult) {
+                    // Stop scanning after successful scan
+                    stopScanner();
+
+                    // Process the scanned data
+                    document.getElementById('scan-input').value = decodedText;
+
+                    let id = decodedText;
+                    if (decodedText.startsWith('PROD_')) {
+                        id = decodedText.replace('PROD_', '');
+                    }
+
+                    const productId = parseInt(id);
+                    if (!isNaN(productId)) {
+                        lookupProduct(productId);
+                    } else {
+                        alert('Invalid QR code. Please scan a valid product QR.');
+                    }
+                }
+
+                function onScanError(errorMessage) {
+                    // Ignore errors - they happen continuously during scanning
+                    // console.warn('Scan error:', errorMessage);
+                }
+
+                // ---------- Staff: lookup ----------
+                document.getElementById('scanLookupBtn').addEventListener('click', function () {
+                    const input = document.getElementById('scan-input').value.trim();
+                    if (!input) {
+                        alert('Enter product ID or scan data');
+                        return;
+                    }
+
+                    let id = input;
+                    if (input.startsWith('PROD_')) {
+                        id = input.replace('PROD_', '');
+                    }
+
+                    const productId = parseInt(id);
+                    if (isNaN(productId)) {
+                        alert('Invalid product ID format');
+                        return;
+                    }
+
+                    lookupProduct(productId);
+                });
+
+                document.getElementById('scan-input').addEventListener('keyup', function (e) {
+                    if (e.key === 'Enter') {
+                        document.getElementById('scanLookupBtn').click();
+                    }
+                });
+
+                function lookupProduct(productId) {
+                    const products = loadProducts();
+                    const product = products.find(p => p.id === productId);
+                    const resultDiv = document.getElementById('scan-result');
+                    const infoDiv = document.getElementById('scannedProductInfo');
+
+                    if (!product) {
+                        resultDiv.classList.remove('hidden');
+                        infoDiv.innerHTML = '<span style="color:#b00020;">❌ Product not found</span>';
+                        resultDiv.dataset.productId = '';
+                        resultDiv.dataset.netPrice = '';
+                        return;
+                    }
+
+                    resultDiv.classList.remove('hidden');
+                    infoDiv.innerHTML = `
+                        <div style="font-weight:600; font-size:1.1rem;">${product.name}</div>
+                        <div style="font-size:0.9rem; color:#2a5f7a;">${product.company || ''} · ${formatCurrency(product.net)}</div>
+                        <div style="font-size:0.75rem; color:#4b6a85;">ID: ${product.id}</div>
+                    `;
+
+                    resultDiv.dataset.productId = product.id;
+                    resultDiv.dataset.netPrice = product.net;
+                    document.getElementById('qtyDisplay').innerText = '1';
+                }
+
+                // Qty controls
+                document.getElementById('qtyDec').addEventListener('click', function () {
+                    let q = parseInt(document.getElementById('qtyDisplay').innerText) || 1;
+                    if (q > 1) q--;
+                    document.getElementById('qtyDisplay').innerText = q;
+                });
+
+                document.getElementById('qtyInc').addEventListener('click', function () {
+                    let q = parseInt(document.getElementById('qtyDisplay').innerText) || 1;
+                    q++;
+                    document.getElementById('qtyDisplay').innerText = q;
+                });
+
+                // ---------- Bill management ----------
+                function renderBill() {
+                    const container = document.getElementById('billItems');
+                    if (billItems.length === 0) {
+                        container.innerHTML = '<p style="color:#6b8aa5; padding:8px;">No items in bill.</p>';
+                        document.getElementById('billTotal').innerHTML = 'Total: ₹0.00';
+                        return;
+                    }
+
+                    const receiptNo = 'RCPT-' + Math.floor(Math.random() * 1000000);
+                    const now = new Date();
+                    const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+
+                    let html = `
+                        <div class="print-only receipt-header" style="display:none;">
+                            <h2 style="color:#0f3b5e;">Smart MiniStore</h2>
+                            <p>Receipt No: ${receiptNo}</p>
+                            <p>Date: ${dateStr}</p>
+                            <hr style="border-top:1px dashed #ccc; margin:10px 0;">
+                        </div>
+                    `;
+
+                    let subTotal = 0;
+                    let totalDiscount = 0;
+                    let finalTotal = 0;
+
+                    billItems.forEach((item, index) => {
+                        const originalPrice = parseFloat(item.price) || item.net; // fallback if price is missing
+                        const originalLineTotal = item.qty * originalPrice;
+                        const lineTotal = item.qty * item.net;
+                        const lineDiscount = originalLineTotal - lineTotal;
+                        
+                        subTotal += originalLineTotal;
+                        totalDiscount += lineDiscount;
+                        finalTotal += lineTotal;
+                        
+                        html += `
+                            <div class="bill-row" style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #eee;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="flex:1;"><strong>${item.name}</strong> <span style="color:#6b8aa5; font-size:0.9em; margin-left:5px;">(Qty: ${item.qty})</span></span>
+                                    <span style="font-weight:600; margin-left:10px;">${formatCurrency(lineTotal)}</span>
+                                </div>
+                                ${lineDiscount > 0 ? `<div style="font-size:0.75rem; color:#27ae60; text-align:right;">Saved: ${formatCurrency(lineDiscount)}</div>` : ''}
+                            </div>
+                        `;
+                    });
+
+                    html += `
+                        <div class="print-only receipt-footer" style="display:none;">
+                            <hr style="border-top:1px dashed #ccc; margin:10px 0;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                                <span>Subtotal:</span>
+                                <span>${formatCurrency(subTotal)}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#27ae60;">
+                                <span>Total Savings:</span>
+                                <span>-${formatCurrency(totalDiscount)}</span>
+                            </div>
+                            <hr style="border-top:1px dashed #ccc; margin:10px 0;">
+                        </div>
+                    `;
+
+                    container.innerHTML = html;
+                    document.getElementById('billTotal').innerHTML = `
+                        <div style="font-size:1.3rem; font-weight:bold; color:#0f3b5e;">Total: ${formatCurrency(finalTotal)}</div>
+                        ${totalDiscount > 0 ? `<div style="font-size:0.85rem; color:#27ae60; margin-top:4px;">Total Savings: ${formatCurrency(totalDiscount)}</div>` : ''}
+                    `;
+                }
+
+                document.getElementById('addToBillBtn').addEventListener('click', function () {
+                    const resultDiv = document.getElementById('scan-result');
+                    const productId = parseInt(resultDiv.dataset.productId);
+
+                    if (!productId) {
+                        alert('⚠️ Scan a product first');
+                        return;
+                    }
+
+                    const net = parseFloat(resultDiv.dataset.netPrice) || 0;
+                    const qty = parseInt(document.getElementById('qtyDisplay').innerText) || 1;
+
+                    const products = loadProducts();
+                    const product = products.find(p => p.id === productId);
+
+                    if (!product) {
+                        alert('Product not found');
+                        return;
+                    }
+
+                    const existing = billItems.find(it => it.id === productId);
+                    if (existing) {
+                        existing.qty += qty;
+                    } else {
+                        billItems.push({
+                            id: productId,
+                            name: product.name,
+                            price: product.price,
+                            net: net,
+                            qty: qty
+                        });
+                    }
+
+                    renderBill();
+                    document.getElementById('qtyDisplay').innerText = '1';
+                    document.getElementById('scan-input').value = '';
+                    document.getElementById('scan-result').classList.add('hidden');
+                });
+
+                document.getElementById('clearBillBtn').addEventListener('click', function () {
+                    if (billItems.length === 0) return;
+                    if (confirm('Clear current bill?')) {
+                        billItems = [];
+                        renderBill();
+                    }
+                });
+
+                // Print bill
+                document.getElementById('printBillBtn').addEventListener('click', function () {
+                    if (billItems.length === 0) {
+                        alert('Bill is empty');
+                        return;
+                    }
+                    window.print();
+                });
+
+                // Print QR label
+                document.getElementById('printQRBtn').addEventListener('click', function () {
+                    const qrEl = document.getElementById('qrcode');
+                    if (!qrEl || qrEl.children.length === 0 || !currentProductId) {
+                        alert('Generate a QR code first');
+                        return;
+                    }
+
+                    const products = loadProducts();
+                    const product = products.find(p => p.id === currentProductId);
+                    const productName = product ? product.name : 'Product';
+
+                    const win = window.open('', '_blank');
+                    if (!win) {
+                        alert('Please allow popups for printing');
+                        return;
+                    }
+
+                    win.document.write(`
+                        <html><head><title>QR Label</title>
+                        <style>
+                            body { text-align:center; padding:30px; font-family:sans-serif; }
+                            .qr-box { display:inline-block; padding:20px; border:1px solid #ccc; border-radius:20px; background:white; }
+                            .label { margin-top:12px; font-weight:600; font-size:1.1rem; }
+                        </style>
+                        </head>
+                        <body>
+                        <div class="qr-box">
+                            <div>${qrEl.innerHTML}</div>
+                            <div class="label">${productName}</div>
+                        </div>
+                        <script>
+                            window.onload = function() { 
+                                window.print(); 
+                                window.close(); 
+                            }
+                        <\/script>
+                        </body></html>
+                    `);
+                    win.document.close();
+                });
+
+                // Refresh list
+                document.getElementById('refreshList').addEventListener('click', renderProductList);
+
+                // ---------- Tab switching ----------
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        const tab = this.dataset.tab;
+                        document.getElementById('tab-admin').classList.toggle('hidden', tab !== 'admin');
+                        document.getElementById('tab-staff').classList.toggle('hidden', tab !== 'staff');
+                        if (tab === 'admin') {
+                            renderProductList();
+                            // Stop scanner if running
+                            if (isScanning) stopScanner();
+                        }
+                        if (tab === 'staff') {
+                            document.getElementById('scan-result').classList.add('hidden');
+                            // Initialize scanner if not already
+                            if (!html5QrCode) {
+                                initializeScanner();
+                            }
+                        }
+                    });
+                });
+
+                // ---------- Scanner controls ----------
+                document.getElementById('startScannerBtn').addEventListener('click', function () {
+                    if (!html5QrCode) {
+                        initializeScanner();
+                        setTimeout(() => startScanner(), 500);
+                    } else {
+                        startScanner();
+                    }
+                });
+
+                document.getElementById('stopScannerBtn').addEventListener('click', function () {
+                    stopScanner();
+                });
+
+                // ---------- init ----------
+                function init() {
+                    loadProducts();
+                    renderProductList();
+
+                    if (products.length > 0) {
+                        const latest = products[products.length - 1];
+                        generateQR(latest.id);
+                    } else {
+                        const qrContainer = document.getElementById('qrcode');
+                        qrContainer.innerHTML = '<span style="color:#8aa3bb; font-size:0.9rem;">Add a product to generate QR</span>';
+                        document.getElementById('qrProductName').innerText = 'No product';
+                    }
+
+                    // Initialize scanner
+                    initializeScanner();
+                }
+
+                init();
+
+            })(); // end of IIFE
+        }); // end of QRCodeReady.then
+</script>
+
+</body>
+
+</html>
