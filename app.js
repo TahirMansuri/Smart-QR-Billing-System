@@ -398,24 +398,69 @@ window.QRCodeReady.then(() => {
                     const container = document.getElementById('billItems');
                     if (billItems.length === 0) {
                         container.innerHTML = '<p style="color:#6b8aa5; padding:8px;">No items in bill.</p>';
-                        document.getElementById('billTotal').innerText = 'Total: ₹0.00';
+                        document.getElementById('billTotal').innerHTML = 'Total: ₹0.00';
                         return;
                     }
 
-                    let html = '';
-                    let total = 0;
+                    const receiptNo = 'RCPT-' + Math.floor(Math.random() * 1000000);
+                    const now = new Date();
+                    const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+
+                    let html = `
+                        <div class="print-only receipt-header" style="display:none;">
+                            <h2 style="color:#0f3b5e;">Smart MiniStore</h2>
+                            <p>Receipt No: ${receiptNo}</p>
+                            <p>Date: ${dateStr}</p>
+                            <hr style="border-top:1px dashed #ccc; margin:10px 0;">
+                        </div>
+                    `;
+
+                    let subTotal = 0;
+                    let totalDiscount = 0;
+                    let finalTotal = 0;
+
                     billItems.forEach((item, index) => {
+                        const originalPrice = parseFloat(item.price) || item.net; // fallback if price is missing
+                        const originalLineTotal = item.qty * originalPrice;
                         const lineTotal = item.qty * item.net;
-                        total += lineTotal;
+                        const lineDiscount = originalLineTotal - lineTotal;
+                        
+                        subTotal += originalLineTotal;
+                        totalDiscount += lineDiscount;
+                        finalTotal += lineTotal;
+                        
                         html += `
-                            <div class="bill-row">
-                                <span><strong>${item.name}</strong> × ${item.qty}</span>
-                                <span>${formatCurrency(lineTotal)}</span>
+                            <div class="bill-row" style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #eee;">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <span><strong>${item.name}</strong> × ${item.qty}</span>
+                                    <span>${formatCurrency(lineTotal)}</span>
+                                </div>
+                                ${lineDiscount > 0 ? `<div style="font-size:0.75rem; color:#27ae60; text-align:right;">Saved: ${formatCurrency(lineDiscount)}</div>` : ''}
                             </div>
                         `;
                     });
+
+                    html += `
+                        <div class="print-only receipt-footer" style="display:none;">
+                            <hr style="border-top:1px dashed #ccc; margin:10px 0;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                                <span>Subtotal:</span>
+                                <span>${formatCurrency(subTotal)}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#27ae60;">
+                                <span>Total Savings:</span>
+                                <span>-${formatCurrency(totalDiscount)}</span>
+                            </div>
+                            <hr style="border-top:1px dashed #ccc; margin:10px 0;">
+                            <h3 style="text-align:center; font-size:1.1rem; color:#0f3b5e;">Thank You for Shopping!</h3>
+                        </div>
+                    `;
+
                     container.innerHTML = html;
-                    document.getElementById('billTotal').innerText = 'Total: ' + formatCurrency(total);
+                    document.getElementById('billTotal').innerHTML = `
+                        <div style="font-size:1.3rem; font-weight:bold; color:#0f3b5e;">Total: ${formatCurrency(finalTotal)}</div>
+                        ${totalDiscount > 0 ? `<div style="font-size:0.85rem; color:#27ae60; margin-top:4px;">Total Savings: ${formatCurrency(totalDiscount)}</div>` : ''}
+                    `;
                 }
 
                 document.getElementById('addToBillBtn').addEventListener('click', function () {
@@ -445,6 +490,7 @@ window.QRCodeReady.then(() => {
                         billItems.push({
                             id: productId,
                             name: product.name,
+                            price: product.price,
                             net: net,
                             qty: qty
                         });
