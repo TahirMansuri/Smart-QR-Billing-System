@@ -4,7 +4,7 @@ This application is a standalone, offline-capable web tool. It does not require 
 
 ## 🚀 How to Run Locally (PC / Mac)
 Since everything runs in the browser, you can start using the system immediately:
-1. Double-click the `qr-system.html` file to open it in Chrome, Edge, or Safari.
+1. Double-click the `index.html` file to open it in Chrome, Edge, or Safari.
 2. The system will load, and you can immediately start adding products and generating QR codes.
 
 ## 📱 How to Run on Mobile Devices (With Camera Scanning)

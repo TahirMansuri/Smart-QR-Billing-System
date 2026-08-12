@@ -1,0 +1,374 @@
+* {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #f4f7fc;
+            padding: 16px 12px 40px;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #0f3b5e;
+            margin-bottom: 16px;
+            border-bottom: 3px solid #2a7faa;
+            padding-bottom: 8px;
+        }
+
+        h1 i {
+            color: #2a7faa;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 8px;
+            border: none;
+            background: #dfe8f0;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1e3a5f;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab-btn.active {
+            background: #1a5e7a;
+            color: white;
+            box-shadow: 0 4px 8px rgba(26, 94, 122, 0.3);
+        }
+
+        .tab-btn i {
+            font-size: 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 20px rgba(0, 20, 40, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #0f3b5e;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            color: #334e68;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #dce5ed;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            background: #fafcff;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2a7faa;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(42, 127, 170, 0.15);
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn {
+            background: #1a5e7a;
+            border: none;
+            color: white;
+            padding: 14px 18px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 6px;
+            box-shadow: 0 4px 8px rgba(26, 94, 122, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: #e2eaf2;
+            color: #1a3e5a;
+            box-shadow: none;
+        }
+
+        .btn-success {
+            background: #1f8b4c;
+            box-shadow: 0 4px 8px rgba(31, 139, 76, 0.25);
+        }
+
+        .btn-danger {
+            background: #c0392b;
+            box-shadow: 0 4px 8px rgba(192, 57, 43, 0.25);
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.25);
+        }
+
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+        }
+
+        #qrcode {
+            background: white;
+            padding: 12px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: inline-block;
+        }
+
+        .qr-hint {
+            font-size: 0.85rem;
+            color: #4b6a85;
+            margin-top: 8px;
+        }
+
+        .product-item {
+            background: #f8faff;
+            border-radius: 40px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e3edf5;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-name {
+            font-weight: 600;
+        }
+
+        .product-meta {
+            font-size: 0.75rem;
+            color: #3c5f7a;
+        }
+
+        .badge {
+            background: #1a5e7a;
+            color: white;
+            border-radius: 40px;
+            padding: 4px 14px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .scanner-area {
+            text-align: center;
+        }
+
+        #scan-input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 60px;
+            border: 2px dashed #2a7faa;
+            background: #f1f9ff;
+            text-align: center;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        #scan-result {
+            margin: 16px 0 8px;
+            padding: 12px;
+            background: #e7f3fa;
+            border-radius: 40px;
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee9f2;
+        }
+
+        .bill-total {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0f3b5e;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qty-control button {
+            background: #dce5ed;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #1a3e5a;
+            cursor: pointer;
+        }
+
+        .qty-control button:active {
+            background: #b0c4d8;
+        }
+
+        .qty-control span {
+            font-weight: 600;
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .mt-2 {
+            margin-top: 12px;
+        }
+
+        .mb-1 {
+            margin-bottom: 6px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .flex {
+            display: flex;
+            align-items: center;
+        }
+
+        .image-preview {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 1px solid #dce5ed;
+            margin-top: 6px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #c0392b;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 4px 8px;
+        }
+
+        #scanner-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 10px auto;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+        }
+
+        #scanner-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .scanner-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .scanner-controls .btn {
+            flex: 1;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
