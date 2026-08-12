@@ -447,7 +447,7 @@ window.QRCodeReady.then(() => {
                                 <span>Subtotal:</span>
                                 <span>${formatCurrency(subTotal)}</span>
                             </div>
-                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#27ae60;">
+                            <div class="success-text" style="display:flex; justify-content:space-between; font-size:0.85rem; color:#27ae60;">
                                 <span>Total Savings:</span>
                                 <span>-${formatCurrency(totalDiscount)}</span>
                             </div>
@@ -618,6 +618,39 @@ window.QRCodeReady.then(() => {
                     initializeScanner();
                 }
 
+                // ========== THEME MANAGEMENT ==========
+                function initTheme() {
+                    const savedTheme = localStorage.getItem('minisystem_theme') || 'light';
+                    document.documentElement.setAttribute('data-theme', savedTheme);
+                    updateThemeIcon(savedTheme);
+                }
+
+                function updateThemeIcon(theme) {
+                    const icon = document.getElementById('themeIcon');
+                    if(icon) {
+                        if (theme === 'dark') {
+                            icon.classList.remove('fa-moon');
+                            icon.classList.add('fa-sun');
+                        } else {
+                            icon.classList.remove('fa-sun');
+                            icon.classList.add('fa-moon');
+                        }
+                    }
+                }
+
+                document.getElementById('themeToggleBtn').addEventListener('click', () => {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('minisystem_theme', next);
+                    updateThemeIcon(next);
+                });
+
+                function init() {
+                    initTheme();
+                    loadAdminView();
+                }
+                
                 init();
 
             })(); // end of IIFE

@@ -427,13 +427,113 @@
                 margin-bottom: 20px !important;
             }
         }
+/* ========== DARK THEME ========== */
+[data-theme="dark"] body {
+    background: #0f172a;
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .card {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] h1, 
+[data-theme="dark"] .card-title, 
+[data-theme="dark"] strong {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] label,
+[data-theme="dark"] .bill-total,
+[data-theme="dark"] p {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] span {
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .success-text span {
+    color: #2ecc71 !important;
+}
+
+[data-theme="dark"] .qty-control button {
+    background: #334155;
+    color: #e2e8f0;
+    border: 1px solid #475569;
+}
+
+[data-theme="dark"] input, 
+[data-theme="dark"] select {
+    background: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .tab-btn {
+    background: #334155;
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .tab-btn:hover {
+    background: #475569;
+}
+
+[data-theme="dark"] .tab-btn.active {
+    background: #2a7faa;
+    color: white;
+}
+
+[data-theme="dark"] .btn-secondary {
+    background: #334155;
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background: #475569;
+}
+
+[data-theme="dark"] .product-item {
+    border-color: #334155;
+}
+
+[data-theme="dark"] .bill-row {
+    border-color: #334155;
+}
+
+/* Light mode receipt fixes */
+@media print {
+    [data-theme="dark"] body {
+        background: white !important;
+        color: black !important;
+    }
+    [data-theme="dark"] .card, 
+    [data-theme="dark"] .product-item, 
+    [data-theme="dark"] .bill-row {
+        background: white !important;
+        color: black !important;
+        border-color: #ccc !important;
+    }
+    [data-theme="dark"] h1, 
+    [data-theme="dark"] .card-title, 
+    [data-theme="dark"] strong {
+        color: black !important;
+    }
+}
+
 </style>
 </head>
 
 <body>
     <div class="container" id="app">
-        <h1><i class="fas fa-store"></i> MiniStore</h1>
-
+        <div class="flex-between" style="border-bottom: 3px solid #2a7faa; margin-bottom: 16px; padding-bottom: 8px;">
+            <h1 style="border:none; margin:0; padding:0;"><i class="fas fa-store"></i> MiniStore</h1>
+            <button id="themeToggleBtn" class="btn btn-secondary no-print" style="width:auto; padding:8px 12px;" title="Toggle Dark Mode">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+        </div>
         <!-- Tab navigation -->
         <div class="tabs no-print">
             <button class="tab-btn active" data-tab="admin"><i class="fas fa-user-cog"></i> Admin</button>
@@ -562,9 +662,9 @@
     </div>
 
     <!-- Developer Trademark / Identity -->
-    <div style="text-align: center; margin: 30px auto 10px; max-width: 500px; padding: 0 12px; font-size: 0.9rem; color: #4b6a85;" class="no-print">
+    <div style="text-align: center; margin: 30px auto 10px; max-width: 500px; padding: 0 12px; font-size: 0.9rem;" class="no-print">
         <hr style="border: 0; border-top: 1px solid #dce5ed; margin-bottom: 15px;">
-        <p style="font-weight: 700; color: #0f3b5e; font-size: 1rem;"><i class="fas fa-shield-alt" style="color: #2a7faa;"></i> Developed by - Tahir Husen Najir Mansuri</p>
+        <p style="font-weight: 700; font-size: 1rem;"><i class="fas fa-shield-alt" style="color: #2a7faa;"></i> Developed by - Tahir Husen Najir Mansuri</p>
         <p style="margin-top: 4px; font-weight: 500;">(Lead System Engineer / HOD, IMRD Shahada)</p>
         <p style="font-size: 0.75rem; margin-top: 8px; opacity: 0.8;">&copy; 2026 All Rights Reserved.</p>
     </div>
@@ -1020,7 +1120,7 @@ window.QRCodeReady.then(() => {
                                 <span>Subtotal:</span>
                                 <span>${formatCurrency(subTotal)}</span>
                             </div>
-                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#27ae60;">
+                            <div class="success-text" style="display:flex; justify-content:space-between; font-size:0.85rem; color:#27ae60;">
                                 <span>Total Savings:</span>
                                 <span>-${formatCurrency(totalDiscount)}</span>
                             </div>
@@ -1191,6 +1291,39 @@ window.QRCodeReady.then(() => {
                     initializeScanner();
                 }
 
+                // ========== THEME MANAGEMENT ==========
+                function initTheme() {
+                    const savedTheme = localStorage.getItem('minisystem_theme') || 'light';
+                    document.documentElement.setAttribute('data-theme', savedTheme);
+                    updateThemeIcon(savedTheme);
+                }
+
+                function updateThemeIcon(theme) {
+                    const icon = document.getElementById('themeIcon');
+                    if(icon) {
+                        if (theme === 'dark') {
+                            icon.classList.remove('fa-moon');
+                            icon.classList.add('fa-sun');
+                        } else {
+                            icon.classList.remove('fa-sun');
+                            icon.classList.add('fa-moon');
+                        }
+                    }
+                }
+
+                document.getElementById('themeToggleBtn').addEventListener('click', () => {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('minisystem_theme', next);
+                    updateThemeIcon(next);
+                });
+
+                function init() {
+                    initTheme();
+                    loadAdminView();
+                }
+                
                 init();
 
             })(); // end of IIFE
