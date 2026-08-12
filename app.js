@@ -431,9 +431,9 @@ window.QRCodeReady.then(() => {
                         
                         html += `
                             <div class="bill-row" style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #eee;">
-                                <div style="display:flex; justify-content:space-between;">
-                                    <span><strong>${item.name}</strong> × ${item.qty}</span>
-                                    <span>${formatCurrency(lineTotal)}</span>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="flex:1;"><strong>${item.name}</strong> <span style="color:#6b8aa5; font-size:0.9em; margin-left:5px;">(Qty: ${item.qty})</span></span>
+                                    <span style="font-weight:600; margin-left:10px;">${formatCurrency(lineTotal)}</span>
                                 </div>
                                 ${lineDiscount > 0 ? `<div style="font-size:0.75rem; color:#27ae60; text-align:right;">Saved: ${formatCurrency(lineDiscount)}</div>` : ''}
                             </div>
@@ -452,7 +452,11 @@ window.QRCodeReady.then(() => {
                                 <span>-${formatCurrency(totalDiscount)}</span>
                             </div>
                             <hr style="border-top:1px dashed #ccc; margin:10px 0;">
-                            <h3 style="text-align:center; font-size:1.1rem; color:#0f3b5e;">Thank You for Shopping!</h3>
+                            <h3 style="text-align:center; font-size:1.1rem; color:#0f3b5e; margin-bottom: 5px;">Thank You for Shopping!</h3>
+                            <div style="text-align:center; font-size:0.75rem; color:#4b6a85; margin-top: 10px;">
+                                Developed by - Tahir Husen Najir Mansuri<br>
+                                <span style="opacity:0.8">(Lead System Engineer / HOD, IMRD Shahada)</span>
+                            </div>
                         </div>
                     `;
 
