@@ -361,6 +361,8 @@
         @media print {
             body {
                 background: white;
+                margin: 0;
+                padding: 0;
             }
 
             .no-print {
@@ -369,6 +371,24 @@
 
             .card {
                 box-shadow: none;
-                border: 1px solid #ccc;
+                border: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                max-width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .bill-row {
+                border-bottom: 1px dashed #ccc;
+            }
+            
+            .card-title {
+                text-align: center;
+                font-size: 1.5rem;
+                margin-bottom: 20px !important;
             }
         }
