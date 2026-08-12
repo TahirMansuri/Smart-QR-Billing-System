@@ -24,7 +24,7 @@
 
 ## 👨‍💻 Developed By
 
-**Tahir Mansuri**  
+**Tahir Husen Najir Mansuri**  
 *Lead System Engineer / HOD, IMRD Shahada*
 
 This project was engineered to provide a seamless, secure, and independent billing solution for modern retail environments without relying on complex backend infrastructures.
