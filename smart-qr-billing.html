@@ -1347,19 +1347,25 @@ window.QRCodeReady.then(() => {
                         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                         this.classList.add('active');
                         const tab = this.dataset.tab;
+                        
                         document.getElementById('tab-admin').classList.toggle('hidden', tab !== 'admin');
                         document.getElementById('tab-staff').classList.toggle('hidden', tab !== 'staff');
+                        const analyticsTab = document.getElementById('tab-analytics');
+                        if (analyticsTab) {
+                            analyticsTab.classList.toggle('hidden', tab !== 'analytics');
+                        }
+
                         if (tab === 'admin') {
                             renderProductList();
-                            // Stop scanner if running
                             if (isScanning) stopScanner();
-                        }
-                        if (tab === 'staff') {
+                        } else if (tab === 'staff') {
                             document.getElementById('scan-result').classList.add('hidden');
-                            // Initialize scanner if not already
                             if (!html5QrCode) {
                                 initializeScanner();
                             }
+                        } else if (tab === 'analytics') {
+                            if (isScanning) stopScanner();
+                            updateAnalytics();
                         }
                     });
                 });
