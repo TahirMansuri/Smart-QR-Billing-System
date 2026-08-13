@@ -443,6 +443,15 @@ window.QRCodeReady.then(() => {
                         `;
                     });
 
+                    const taxPercent = parseFloat(document.getElementById('taxInput').value) || 0;
+                    const discountPercent = parseFloat(document.getElementById('discountInput').value) || 0;
+
+                    let itemsTotal = finalTotal; 
+                    const extraDiscount = itemsTotal * (discountPercent / 100);
+                    const afterDiscountTotal = itemsTotal - extraDiscount;
+                    const taxAmount = afterDiscountTotal * (taxPercent / 100);
+                    const grandTotal = afterDiscountTotal + taxAmount;
+
                     html += `
                         <div class="print-only receipt-footer" style="display:none;">
                             <hr style="border-top:1px dashed #ccc; margin:10px 0;">
@@ -450,20 +459,38 @@ window.QRCodeReady.then(() => {
                                 <span>Subtotal:</span>
                                 <span>${formatCurrency(subTotal)}</span>
                             </div>
-                            <div class="success-text" style="display:flex; justify-content:space-between; font-size:0.85rem; color:#27ae60;">
-                                <span>Total Savings:</span>
+                            <div class="success-text" style="display:flex; justify-content:space-between; font-size:0.85rem; color:#27ae60; margin-bottom:4px;">
+                                <span>Item Savings:</span>
                                 <span>-${formatCurrency(totalDiscount)}</span>
                             </div>
+                            ${discountPercent > 0 ? `
+                            <div class="success-text" style="display:flex; justify-content:space-between; font-size:0.85rem; color:#27ae60; margin-bottom:4px;">
+                                <span>Discount (${discountPercent}%):</span>
+                                <span>-${formatCurrency(extraDiscount)}</span>
+                            </div>` : ''}
+                            ${taxPercent > 0 ? `
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                                <span>Tax (${taxPercent}%):</span>
+                                <span>+${formatCurrency(taxAmount)}</span>
+                            </div>` : ''}
                             <hr style="border-top:1px dashed #ccc; margin:10px 0;">
+                            <div style="display:flex; justify-content:space-between; font-size:1rem; font-weight:bold; margin-bottom:4px;">
+                                <span>Grand Total:</span>
+                                <span>${formatCurrency(grandTotal)}</span>
+                            </div>
                         </div>
                     `;
 
                     container.innerHTML = html;
                     document.getElementById('billTotal').innerHTML = `
-                        <div style="font-size:1.3rem; font-weight:bold; color:#0f3b5e;">Total: ${formatCurrency(finalTotal)}</div>
-                        ${totalDiscount > 0 ? `<div style="font-size:0.85rem; color:#27ae60; margin-top:4px;">Total Savings: ${formatCurrency(totalDiscount)}</div>` : ''}
+                        <div style="font-size:1.3rem; font-weight:bold; color:#0f3b5e;">Total: ${formatCurrency(grandTotal)}</div>
+                        ${(totalDiscount + extraDiscount) > 0 ? `<div class="success-text" style="font-size:0.85rem; color:#27ae60; margin-top:4px;">Total Savings: ${formatCurrency(totalDiscount + extraDiscount)}</div>` : ''}
                     `;
                 }
+
+                // Update bill when tax/discount changes
+                document.getElementById('taxInput').addEventListener('input', renderBill);
+                document.getElementById('discountInput').addEventListener('input', renderBill);
 
                 document.getElementById('addToBillBtn').addEventListener('click', function () {
                     const resultDiv = document.getElementById('scan-result');
@@ -512,13 +539,45 @@ window.QRCodeReady.then(() => {
                     }
                 });
 
-                // Print bill
+                // Print bill and save to history
                 document.getElementById('printBillBtn').addEventListener('click', function () {
                     if (billItems.length === 0) {
                         alert('Bill is empty');
                         return;
                     }
+                    
+                    // Save to history
+                    const taxPercent = parseFloat(document.getElementById('taxInput').value) || 0;
+                    const discountPercent = parseFloat(document.getElementById('discountInput').value) || 0;
+                    
+                    let finalTotal = 0;
+                    billItems.forEach(item => finalTotal += (item.qty * item.net));
+                    const extraDiscount = finalTotal * (discountPercent / 100);
+                    const afterDiscountTotal = finalTotal - extraDiscount;
+                    const taxAmount = afterDiscountTotal * (taxPercent / 100);
+                    const grandTotal = afterDiscountTotal + taxAmount;
+                    
+                    const newBill = {
+                        id: 'RCPT-' + Math.floor(Math.random() * 1000000),
+                        date: new Date().toISOString(),
+                        items: [...billItems],
+                        total: grandTotal
+                    };
+                    
+                    const bills = JSON.parse(localStorage.getItem('minisystem_bills') || '[]');
+                    bills.push(newBill);
+                    localStorage.setItem('minisystem_bills', JSON.stringify(bills));
+                    
+                    updateAnalytics();
+
+                    // Trigger Print Dialog
                     window.print();
+                    
+                    // Clear bill after printing
+                    billItems = [];
+                    document.getElementById('taxInput').value = '';
+                    document.getElementById('discountInput').value = '';
+                    renderBill();
                 });
 
                 // Print QR label
@@ -676,9 +735,120 @@ window.QRCodeReady.then(() => {
                     updateThemeIcon(next);
                 });
 
+                // ========== ANALYTICS & HISTORY ==========
+                let salesChartInstance = null;
+
+                function updateAnalytics() {
+                    const bills = JSON.parse(localStorage.getItem('minisystem_bills') || '[]');
+                    const today = new Date().toDateString();
+                    
+                    let todayRevenue = 0;
+                    let todayCount = 0;
+                    
+                    // Generate 7-day labels
+                    const last7Days = [];
+                    const dailyRevenue = [0, 0, 0, 0, 0, 0, 0];
+                    
+                    for(let i=6; i>=0; i--) {
+                        const d = new Date();
+                        d.setDate(d.getDate() - i);
+                        last7Days.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+                    }
+
+                    bills.forEach(bill => {
+                        const billDate = new Date(bill.date);
+                        
+                        // Today's stats
+                        if (billDate.toDateString() === today) {
+                            todayRevenue += bill.total;
+                            todayCount++;
+                        }
+                        
+                        // 7-day trend
+                        const daysAgo = Math.floor((new Date().setHours(0,0,0,0) - new Date(bill.date).setHours(0,0,0,0)) / (1000 * 60 * 60 * 24));
+                        if (daysAgo >= 0 && daysAgo < 7) {
+                            dailyRevenue[6 - daysAgo] += bill.total;
+                        }
+                    });
+
+                    document.getElementById('analyticsRevenue').innerText = formatCurrency(todayRevenue);
+                    document.getElementById('analyticsBillCount').innerText = todayCount;
+                    
+                    renderChart(last7Days, dailyRevenue);
+                    renderHistory(bills);
+                }
+                
+                function renderChart(labels, data) {
+                    const ctx = document.getElementById('salesChart');
+                    if(!ctx) return;
+                    
+                    if(salesChartInstance) {
+                        salesChartInstance.destroy();
+                    }
+                    
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    const gridColor = isDark ? '#334155' : '#e2e8f0';
+                    const textColor = isDark ? '#94a3b8' : '#475569';
+                    
+                    salesChartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Revenue (₹)',
+                                data: data,
+                                backgroundColor: '#2a7faa',
+                                borderRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+                                x: { grid: { display: false }, ticks: { color: textColor } }
+                            },
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                }
+                
+                function renderHistory(bills) {
+                    const container = document.getElementById('historyList');
+                    if(!container) return;
+                    
+                    if(bills.length === 0) {
+                        container.innerHTML = '<div style="text-align:center; padding: 20px; color:#8aa3bb; font-size:0.9rem;">No bills recorded yet</div>';
+                        return;
+                    }
+                    
+                    // Sort newest first, take top 20
+                    const recentBills = [...bills].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 20);
+                    
+                    let html = '';
+                    recentBills.forEach(bill => {
+                        const date = new Date(bill.date).toLocaleString();
+                        html += `
+                            <div class="product-item" style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <strong>${bill.id}</strong><br>
+                                    <span style="font-size:0.8rem; color:#6b8aa5;">${date} &bull; ${bill.items.length} items</span>
+                                </div>
+                                <div style="text-align:right;">
+                                    <div style="font-weight:bold; color:#27ae60;">${formatCurrency(bill.total)}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
+                }
+
                 function init() {
                     initTheme();
                     loadAdminView();
+                    updateAnalytics();
                 }
                 
                 init();

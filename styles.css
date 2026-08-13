@@ -420,6 +420,11 @@
     color: #e2e8f0;
 }
 
+[data-theme="dark"] .flex-between.no-print {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
 [data-theme="dark"] span {
     color: #cbd5e1 !important;
 }

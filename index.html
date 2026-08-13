@@ -27,6 +27,7 @@
     <!-- HTML5 QR Code for scanning -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
@@ -45,6 +46,7 @@
         <div class="tabs no-print">
             <button class="tab-btn active" data-tab="admin"><i class="fas fa-user-cog"></i> Admin</button>
             <button class="tab-btn" data-tab="staff"><i class="fas fa-qrcode"></i> Staff</button>
+            <button class="tab-btn" data-tab="analytics"><i class="fas fa-chart-line"></i> Analytics</button>
         </div>
 
         <!-- ========== ADMIN PANEL ========== -->
@@ -163,7 +165,41 @@
                     </div>
                 </div>
 
-                <button class="btn no-print" id="printBillBtn"><i class="fas fa-print"></i> Print Bill</button>
+                <!-- Tax & Discount options -->
+                <div class="flex-between no-print" style="margin-top: 20px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #dce5ed;">
+                    <div style="flex:1; margin-right:10px;">
+                        <label style="font-size:0.8rem; margin-bottom:4px; display:block;">Tax (GST %)</label>
+                        <input type="number" id="taxInput" placeholder="0" min="0" max="100" style="padding: 6px; font-size:0.9rem;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:0.8rem; margin-bottom:4px; display:block;">Discount (%)</label>
+                        <input type="number" id="discountInput" placeholder="0" min="0" max="100" style="padding: 6px; font-size:0.9rem;">
+                    </div>
+                </div>
+                
+                <button class="btn no-print" id="printBillBtn" style="margin-top: 15px;"><i class="fas fa-print"></i> Print Bill</button>
+            </div>
+        </div>
+
+        <!-- ========== ANALYTICS PANEL ========== -->
+        <div id="tab-analytics" class="tab-content hidden no-print">
+            <div class="card" style="text-align: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; color: #0f3b5e;" class="dashboard-text">Today's Revenue</h2>
+                <div id="analyticsRevenue" style="font-size: 2rem; font-weight: 700; color: #27ae60; margin: 10px 0;">₹0.00</div>
+                <div style="font-size: 0.9rem; color: #4b6a85;" class="dashboard-subtext">Total Bills: <strong id="analyticsBillCount">0</strong></div>
+            </div>
+
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="card-title"><i class="fas fa-chart-bar"></i> 7-Day Sales Trend</div>
+                <canvas id="salesChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fas fa-history"></i> Recent Bills</div>
+                <div id="historyList">
+                    <!-- History items injected here -->
+                    <div style="text-align:center; padding: 20px; color:#8aa3bb; font-size:0.9rem;">No bills recorded yet</div>
+                </div>
             </div>
         </div>
     </div>
