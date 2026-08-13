@@ -302,6 +302,9 @@ window.QRCodeReady.then(() => {
                 }
 
                 function onScanSuccess(decodedText, decodedResult) {
+                    // Play beep sound
+                    playScanBeep();
+                    
                     // Stop scanning after successful scan
                     stopScanner();
 
@@ -616,6 +619,33 @@ window.QRCodeReady.then(() => {
 
                     // Initialize scanner
                     initializeScanner();
+                }
+
+                // ========== SERVICE WORKER REGISTRATION ==========
+                if ('serviceWorker' in navigator) {
+                    window.addEventListener('load', () => {
+                        navigator.serviceWorker.register('./sw.js').catch(err => {
+                            console.log('ServiceWorker registration failed: ', err);
+                        });
+                    });
+                }
+
+                // ========== SCANNER AUDIO BEEP ==========
+                function playScanBeep() {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+                    
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.1);
                 }
 
                 // ========== THEME MANAGEMENT ==========

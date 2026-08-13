@@ -1,0 +1,17 @@
+{
+  "name": "Smart MiniStore POS",
+  "short_name": "MiniStore",
+  "description": "Offline-first Point of Sale and QR Billing System",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7fc",
+  "theme_color": "#2a7faa",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
